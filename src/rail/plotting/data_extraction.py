@@ -133,7 +133,7 @@ def make_z_true_z_point_list_dict(
     z_true: np.ndarray
         True Redshifts
 
-    z_estimates: dict[str, np.ndarray],
+    z_estimates: dict[str, np.ndarray]
         Point estimates
 
     Returns
