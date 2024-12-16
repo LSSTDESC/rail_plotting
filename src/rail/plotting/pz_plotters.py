@@ -17,7 +17,7 @@ class PZPlotterPointEstimateVsTrueHist2D(RailPlotter):
     config_options: dict[str, StageParameter] = dict(
         z_min=StageParameter(float, 0., fmt="%0.2f", msg="Minimum Redshift"),
         z_max=StageParameter(float, 3., fmt="%0.2f", msg="Maximum Redshift"),
-        n_zbins=StageParameter(int, 150, fmt="%0.2f", msg="Number of z bins"),
+        n_zbins=StageParameter(int, 150, fmt="%i", msg="Number of z bins"),
     )
 
     inputs: dict = {
@@ -52,7 +52,7 @@ class PZPlotterPointEstimateVsTrueProfile(RailPlotter):
     config_options: dict[str, StageParameter] = dict(
         z_min=StageParameter(float, 0., fmt="%0.2f", msg="Minimum Redshift"),
         z_max=StageParameter(float, 3., fmt="%0.2f", msg="Maximum Redshift"),
-        n_zbins=StageParameter(int, 150, fmt="%0.2f", msg="Number of z bins"),
+        n_zbins=StageParameter(int, 150, fmt="%i", msg="Number of z bins"),
     )
 
     inputs: dict = {
@@ -99,7 +99,7 @@ class PZPlotterAccuraciesVsTrue(RailPlotter):
     config_options: dict[str, StageParameter] = dict(
         z_min=StageParameter(float, 0., fmt="%0.2f", msg="Minimum Redshift"),
         z_max=StageParameter(float, 3., fmt="%0.2f", msg="Maximum Redshift"),
-        n_zbins=StageParameter(int, 150, fmt="%0.2f", msg="Number of z bins"),
+        n_zbins=StageParameter(int, 150, fmt="%i", msg="Number of z bins"),
         delta_cutoff=StageParameter(float, 0.1, fmt="%0.2f", msg="Delta-Z Cutoff for accurary"),
     )
 
