@@ -1,46 +1,49 @@
 from __future__ import annotations
 
 import os
+from typing import Any
+from matplotlib.Figure import Figure
 
 from ceci.config import StageConfig, StageParameter
 
-
 class RailPlotter:
     """ Base class for making matplotlib plot """
-    
+
     config_options: dict[str, StageParameter] = {}
-    
+
     _inputs: dict = {}
 
-    plotter_classes = {}
+    plotter_classes: dict[str, type] = {}
 
-    def __init_subclass__(cls):
+    def __init_subclass__(cls) -> None:
         cls.plotter_classes[cls.__name__] = cls
 
     @classmethod
-    def print_classes(cls):
+    def print_classes(cls) -> None:
         for key, val in cls.plotter_classes.items():
             print(f"{key} {val}")
 
     @classmethod
-    def get_plotter_class(cls, name):
+    def get_plotter_class(cls, name: str) -> type:
         try:
             return cls.plotter_classes[name]
         except KeyError as msg:
-            raise KeyError(f"Could not find plotter class {name} in {list(cls.plotter_classes.keys())}") from msg
+            raise KeyError(
+                f"Could not find plotter class {name} in {list(cls.plotter_classes.keys())}"
+        ) from msg
 
     @staticmethod
-    def load_plotter_class(class_name):        
+    def load_plotter_class(class_name: str) -> type:
         tokens = class_name.split('.')
         module = '.'.join(tokens[:-1])
         class_name = tokens[-1]
         __import__(module)
         plotter_class = RailPlotter.get_plotter_class(class_name)
         return plotter_class
-        
+
     @staticmethod
     def create_from_dict(
-        name: str, 
+        name: str,
         config_dict: dict[str, Any],
     ) -> RailPlotter:
         copy_config = config_dict.copy()
@@ -53,8 +56,8 @@ class RailPlotter:
         plotters: list[RailPlotter],
         prefix: str,
         **kwargs: Any,
-    ) -> dict[str, matplotlib.Figure]:
-        """ Utility function to several plotters on the same data 
+    ) -> dict[str, Figure]:
+        """ Utility function to several plotters on the same data
 
         Parameters
         ----------
@@ -70,10 +73,10 @@ class RailPlotter:
 
         Returns
         -------
-        out_dict: dict[str, matplotlib.Figure]
+        out_dict: dict[str, Figure]
             Dictionary of the newly created figures
         """
-        out_dict: dict[str, matplotlib.Figure] = {}
+        out_dict: dict[str, Figure] = {}
         for plotter_ in plotters:
             out_dict.update(plotter_(prefix, **kwargs))
         return out_dict
@@ -82,7 +85,7 @@ class RailPlotter:
     def iterate(
         plotters: list[RailPlotter],
         data_dict: dict[str, dict],
-    ) -> dict[str, matplotlib.Figure]:
+    ) -> dict[str, Figure]:
         """ Utility function to several plotters of several data sets
 
         Parameters
@@ -95,25 +98,25 @@ class RailPlotter:
 
         Returns
         -------
-        out_dict: dict[str, matplotlib.Figure]
+        out_dict: dict[str, Figure]
             Dictionary of the newly created figures
         """
-        out_dict: dict[str, matplotlib.Figure] = {}
+        out_dict: dict[str, Figure] = {}
         for key, val in data_dict.items():
             out_dict.update(RailPlotter.iterate_plotters(plotters, key, **val))
         return out_dict
-            
+
     @staticmethod
     def save_plots(
-        fig_dict: dict[str, matplotlib.Figure],
-        outdir: str=".", 
+        fig_dict: dict[str, Figure],
+        outdir: str=".",
         figtype: str="png",
     ) -> None:
         """ Utility function to several plotters of several data sets
 
         Parameters
         ----------
-        fig_dict: dict[str, matplotlib.Figure]
+        fig_dict: dict[str, Figure]
             Dictionary of figures to save
 
         outdir: str
@@ -125,23 +128,23 @@ class RailPlotter:
         for key, val in fig_dict.items():
             try:
                 os.makedirs(outdir)
-            except:
+            except Exception:
                 pass
             out_path = os.path.join(outdir, f"{key}.{figtype}")
-            val.savefig(out_path)        
-            
+            val.savefig(out_path)
+
     def __init__(self, name: str, **kwargs: Any):
         """ C'tor
-        
+
         Parameters
         ----------
         name: str
             Name for this plotter, used to construct names of plots
-        
+
         kwargs: Any
             Configuration parameters for this plotter, must match
             class.config_options data members
-        """        
+        """
         self._name = name
         self._config = StageConfig(**self.config_options)
         self._set_config(**kwargs)
@@ -149,11 +152,11 @@ class RailPlotter:
     @property
     def config(self) -> StageConfig:
         return self._config
-        
+
     def __repr__(self) -> str:
         return f"{self._name}"
 
-    def __call__(self, prefix: str, **kwargs: Any) -> dict[str, matplotlib.Figure]:
+    def __call__(self, prefix: str, **kwargs: Any) -> dict[str, Figure]:
         """ Make all the plots given the data
 
         Parameters
@@ -167,7 +170,7 @@ class RailPlotter:
 
         Returns
         -------
-        out_dict: dict[str, matplotlib.Figure]
+        out_dict: dict[str, Figure]
             Dictionary of the newly created figures
         """
         self._validate_inputs(**kwargs)
@@ -184,14 +187,14 @@ class RailPlotter:
 
         plot_name: str
             Specific name for a particular plot
-        
+
         Returns
         -------
         plot_name: str
             Plot name, following the pattern f"{self._name}_{prefix}_{plot_name}"
         """
         return f"{self._name}_{prefix}_{plot_name}"
-    
+
     def _set_config(self, **kwargs: Any) -> None:
         kwcopy = kwargs.copy()
         for key in self.config.keys():
@@ -204,7 +207,7 @@ class RailPlotter:
                 self.config[key] = attr.default
         if kwcopy:
             raise ValueError(f"Unrecogonized configruation parameters {kwcopy.keys()}")
-    
+
     @classmethod
     def _validate_inputs(cls, **kwargs: Any) -> None:
         for key, expected_type in cls._inputs.items():
@@ -212,13 +215,10 @@ class RailPlotter:
                 data = kwargs[key]
             except KeyError as msg:
                 raise KeyError(
-                    f"{key} not provided to RailPlotter {self._name} in {list(kwargs.keys())}"
+                    f"{key} not provided to RailPlotter {cls} in {list(kwargs.keys())}"
                 ) from msg
             if not isinstance(data, expected_type):
                 raise TypeError(f"{key} provided to RailPlotter was {type(data)}, expected {expected_type}")
 
-    def _make_plots(self, prefix: str, **kwargs: Any) -> dict[str, matplotlib.Figure]:
+    def _make_plots(self, prefix: str, **kwargs: Any) -> dict[str, Figure]:
         raise NotImplementedError()
-
-
-    
