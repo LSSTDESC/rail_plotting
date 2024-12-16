@@ -20,11 +20,24 @@ class RailPlotter:
 
     @classmethod
     def print_classes(cls) -> None:
+        """Print the sub-classes of RailPlotter that have been loaded"""
         for key, val in cls.plotter_classes.items():
             print(f"{key} {val}")
 
     @classmethod
     def get_plotter_class(cls, name: str) -> type:
+        """Get a particular sub-class of RailPlotter by name
+
+        Parameters
+        ----------
+        name: str
+            Name of the subclass
+
+        Returns
+        -------
+        subclass: type
+            Subclass in question
+        """
         try:
             return cls.plotter_classes[name]
         except KeyError as msg:
@@ -34,6 +47,18 @@ class RailPlotter:
 
     @staticmethod
     def load_plotter_class(class_name: str) -> type:
+        """Import a particular sub-class of RailPlotter by name
+
+        Parameters
+        ----------
+        class_name: str
+            Full path and name of the subclass, e.g., rail.plotting.some_file.SomeClass
+
+        Returns
+        -------
+        subclass: type
+            Subclass in question
+        """
         tokens = class_name.split('.')
         module = '.'.join(tokens[:-1])
         class_name = tokens[-1]
@@ -46,6 +71,26 @@ class RailPlotter:
         name: str,
         config_dict: dict[str, Any],
     ) -> RailPlotter:
+        """Create a RailPlotter object
+
+        Parameters
+        ----------
+        name: str
+            Name to give to the newly created object
+
+        config_dict: dict[str, Any],
+            Configuration parameters
+
+        Returns
+        -------
+        plotter: RailPlotter
+            Newly created plotter
+
+        Notes
+        -----
+        config_dict must include 'class_name' which gives the path and name of the
+        class, e.g., rail.plotters.some_file.SomeClass
+        """
         copy_config = config_dict.copy()
         class_name = copy_config.pop('class_name')
         plotter_class = RailPlotter.load_plotter_class(class_name)
