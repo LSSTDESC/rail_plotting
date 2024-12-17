@@ -93,36 +93,7 @@ def extract_multiple_z_point(
     return ret_dict
 
 
-def make_z_true_z_point_single_dicts(
-    z_true: np.ndarray,
-    z_estimates: dict[str, np.ndarray],
-) -> dict[str, dict[str, np.ndarray]]:
-    """Build several dictionaries with true redshifts and point_estimates
-
-    Parameters
-    ----------
-    z_true: np.ndarray
-        True Redshifts
-
-    z_estimates: dict[str, np.ndarray],
-        Point estimates, key will be used in the output dictionary
-
-    Returns
-    -------
-    out_dict: dict[str, dict[str, np.ndarray]]
-        Dictionaries, keyed by input key, each with true redshift and one
-        point estimate of the redshift
-    """
-    out_dict: dict[str, dict[str, np.ndarray]] = {}
-    for key, val in z_estimates.items():
-        out_dict[key] = dict(
-            truth=z_true,
-            pointEstimate=val,
-        )
-    return out_dict
-
-
-def make_z_true_z_point_list_dict(
+def make_z_true_z_point_dict(
     z_true: np.ndarray,
     z_estimates: dict[str, np.ndarray],
 ) -> dict[str, Any]:
@@ -218,3 +189,43 @@ def get_ceci_pz_output_paths(
         if os.path.exists(outpath):
             out_dict[algo_] = outpath
     return out_dict
+
+
+def get_pz_point_estimate_data(
+    project: RailProject,
+    selection: str,
+    flavor: str,
+    tag: str,
+    algos: list[str] = ['all'],
+) -> dict[str, Any]:
+    """Get the true redshifts and point estimates
+    for a particualar analysis selection and flavor
+
+    Parameters
+    ----------
+    project: RailProject
+        Object with information about the structure of the current project
+
+    selection: str
+        Data selection in question, e.g., 'gold', or 'blended'
+
+    flavor: str
+        Analysis flavor in question, e.g., 'baseline' or 'zCosmos'
+
+    algos: list[str]
+        Algorithms we want the estimates for, e.g., ['knn', 'bpz'], etc...
+
+    tag: str
+        File tag, e.g., 'test' or 'train', or 'train_zCosmos'
+
+    Returns
+    -------
+    paths: dict[str, Any]
+        Data in question
+    """
+    z_true_path = get_z_true_path(project, selection, flavor, tag)
+    z_estimate_paths = get_ceci_pz_output_paths(project, selection, flavor, algos)
+    z_true_data = extract_z_true(z_true_path)
+    z_estimate_data = extract_multiple_z_point(z_estimate_paths)
+    pz_data = make_z_true_z_point_dict(z_true_data, z_estimate_data)
+    return pz_data

@@ -22,15 +22,19 @@ class PZPlotterPointEstimateVsTrueHist2D(RailPlotter):
 
     inputs: dict = {
         'truth':np.ndarray,
-        'pointEstimate':np.ndarray,
+        'pointEstimates':dict[str, np.ndarray],
     }
 
-    def _make_2d_hist_plot(self, **kwargs: Any) -> Figure:
+    def _make_2d_hist_plot(
+        self,
+        truth: np.ndarray,
+        pointEstimate: np.ndarray,
+    ) -> Figure:
         figure, axes = plt.subplots()
         bin_edges = np.linspace(self.config.z_min, self.config.z_max, self.config.n_zbins+1)
         axes.hist2d(
-            kwargs['truth'],
-            kwargs['pointEstimate'],
+            truth,
+            pointEstimate,
             bins=(bin_edges, bin_edges),
         )
         plt.xlabel("True Redshift")
@@ -40,7 +44,13 @@ class PZPlotterPointEstimateVsTrueHist2D(RailPlotter):
 
     def _make_plots(self, prefix: str, **kwargs: Any) -> dict[str, Figure]:
         out_dict: dict[str, Figure]  = {}
-        out_dict[self._make_full_plot_name(prefix, 'hist')] = self._make_2d_hist_plot(**kwargs)
+        truth: np.ndarray = kwargs['truth']
+        pointEstimates: dict[str, np.ndarray] = kwargs['pointEstimates']
+        for key, val in pointEstimates.items():
+            out_dict[self._make_full_plot_name(prefix, f'{key}_hist')] = self._make_2d_hist_plot(
+                truth=truth,
+                pointEstimate=val,
+            )
         return out_dict
 
 
@@ -60,17 +70,20 @@ class PZPlotterPointEstimateVsTrueProfile(RailPlotter):
         'pointEstimate':np.ndarray,
     }
 
-    def _make_2d_profile_plot(self, **kwargs: Any) -> Figure:
+    def _make_2d_profile_plot(
+        self,
+        truth: np.ndarray,
+        pointEstimate: np.ndarray,
+    ) -> Figure:
         figure, axes = plt.subplots()
         bin_edges = np.linspace(self.config.z_min, self.config.z_max, self.config.n_zbins+1)
         bin_centers = 0.5*(bin_edges[0:-1] + bin_edges[1:])
-        z_true_bin = np.searchsorted(bin_edges, kwargs['truth'])
-        z_estimates = kwargs['pointEstimate']
+        z_true_bin = np.searchsorted(bin_edges, truth)
         means = np.zeros((self.config.n_zbins))
         stds = np.zeros((self.config.n_zbins))
         for i in range(self.config.n_zbins):
             mask = z_true_bin == i
-            data = z_estimates[mask]
+            data = pointEstimate[mask]
             if len(data) == 0:
                 continue
             means[i] = np.mean(data) - bin_centers[i]
@@ -87,7 +100,13 @@ class PZPlotterPointEstimateVsTrueProfile(RailPlotter):
 
     def _make_plots(self, prefix: str, **kwargs: Any) -> dict[str, Figure]:
         out_dict: dict[str, Figure]  = {}
-        out_dict[self._make_full_plot_name(prefix, 'profile')] = self._make_2d_profile_plot(**kwargs)
+        truth: np.ndarray = kwargs['truth']
+        pointEstimates: dict[str, np.ndarray] = kwargs['pointEstimates']
+        for key, val in pointEstimates.items():
+            out_dict[self._make_full_plot_name(prefix, f'{key}_profile')] = self._make_2d_profile_plot(
+                truth=truth,
+                pointEstimate=val,
+            )
         return out_dict
 
 
@@ -108,15 +127,17 @@ class PZPlotterAccuraciesVsTrue(RailPlotter):
         'pointEstimates':dict[str, np.ndarray],
     }
 
-    def _make_accuracy_plot(self, **kwargs: Any) -> Figure:
+    def _make_accuracy_plot(
+        self,
+        truth: np.ndarray,
+        pointEstimates: dict[str, np.ndarray],
+    ) -> Figure:
         figure, axes = plt.subplots()
         bin_edges = np.linspace(self.config.z_min, self.config.z_max, self.config.n_zbins+1)
         bin_centers = 0.5*(bin_edges[0:-1] + bin_edges[1:])
-        z_true = kwargs['truth']
-        z_true_bin = np.searchsorted(bin_edges, z_true)
-        z_estimates = kwargs['pointEstimates']
-        for key, val in z_estimates.items():
-            deltas = val - z_true
+        z_true_bin = np.searchsorted(bin_edges, truth)
+        for key, val in pointEstimates.items():
+            deltas = val - truth
             accuracy = np.ones((self.config.n_zbins))*np.nan
             for i in range(self.config.n_zbins):
                 mask = z_true_bin == i
@@ -132,7 +153,6 @@ class PZPlotterAccuraciesVsTrue(RailPlotter):
         plt.xlabel("True Redshift")
         plt.ylabel("Estimated Redshift")
         return figure
-
 
     def _make_plots(self, prefix: str, **kwargs: Any) -> dict[str, Figure]:
         out_dict: dict[str, Figure]  = {}
