@@ -7,8 +7,33 @@ from .plotter import RailPlotter
 
 
 class PlotterFactory:
-    """Factory class to make plotters"""
+    """Factory class to make plotters
 
+    Expected usage is that user will define a yaml file with the various
+    plotters that they wish to use with the following example syntax:
+
+    - Plotter:
+          name: zestimate_v_ztrue_hist2d
+          class: rail.plotters.pz_plotters.PZPlotterPointEstimateVsTrueHist2D
+          z_min: 0.0
+          z_max: 3.0
+          n_zbins: 150
+    - Plotter:
+          name: zestimate_v_ztrue_profile
+          class: rail.plotters.pz_plotters.PZPlotterPointEstimateVsTrueProfile
+          z_min: 0.0
+          z_max: 3.0
+          n_zbins: 60
+
+    And group them into lists of plotter that can be run over particular types
+    of data, using the following example syntax:
+
+    - PlotterList:
+          name: z_estimate_f_z_true
+          plotters:
+              - zestimate_v_ztrue_hist2d
+              - zestimate_v_ztrue_profile
+    """
     _instance: PlotterFactory | None = None
 
     def __init__(self) -> None:
@@ -23,6 +48,7 @@ class PlotterFactory:
 
     @classmethod
     def print_contents(cls) -> None:
+        """Print the contents of the factory """
         if cls._instance is None:
             cls._instance = PlotterFactory()
         cls._instance.print_instance_contents()
@@ -35,6 +61,24 @@ class PlotterFactory:
         ----------
         yaml_file: str
             File to read and load
+
+        Notes
+        -----
+        The format of the yaml file should be
+
+        - Plotter
+              name: some_name
+              class_name: rail.plotters.<filename>.<ClassName>
+              <other_parameters>
+        - Plotter
+              name: some_other_name
+              class_name: rail.plotters.<filename>.<ClassName>
+              <other_parameters>
+        - PlotterList
+              name: plot_list_name
+              plotters:
+                  - some_name
+                  - some_other_name
         """
         if cls._instance is None:
             cls._instance = PlotterFactory()
@@ -42,6 +86,18 @@ class PlotterFactory:
 
     @classmethod
     def get_plotter(cls, name: str) -> RailPlotter:
+        """Get plotter it's assigned name
+
+        Parameters
+        ----------
+        name: str
+            Name of the plotter to return
+
+        Returns
+        -------
+        plotter: RailPlotter
+            Plotter in question
+        """
         try:
             return cls.instance().plotter_dict[name]
         except KeyError as msg:
@@ -52,6 +108,18 @@ class PlotterFactory:
 
     @classmethod
     def get_plotter_list(cls, name: str) -> list[RailPlotter]:
+        """Get a list of plotters their assigned name
+
+        Parameters
+        ----------
+        name: str
+            Name of the plotter list to return
+
+        Returns
+        -------
+        plotters: list[RailPlotter]
+            Plotters in question
+        """
         try:
             return cls.instance().plotter_list_dict[name]
         except KeyError as msg:
