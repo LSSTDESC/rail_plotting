@@ -40,11 +40,13 @@ class RailDatasetFactory:
     _instance: RailDatasetFactory | None = None
 
     def __init__(self) -> None:
+        """C'tor, build an empty RailDatasetFactory"""        
         self._dataset_dict: dict[str, dict] = {}
         self._dataset_list_dict: dict[str, list[dict]] = {}
 
     @classmethod
     def instance(cls) -> RailDatasetFactory:
+        """Return the singleton instance of the factory"""
         if cls._instance is None:
             cls._instance = RailDatasetFactory()
         return cls._instance
@@ -139,13 +141,16 @@ class RailDatasetFactory:
 
     @property
     def dataset_dict(self) -> dict[str, dict]:
+        """Return the dictionary of individual datasets"""
         return self._dataset_dict
 
     @property
     def dataset_list_dict(self) -> dict[str, list[dict]]:
+        """Return the dictionary of lists of datasets"""        
         return self._dataset_list_dict
 
     def print_instance_contents(self) -> None:
+        """Print the contents of the factory"""
         print("Datasets:")
         for dataset_name, dataset in self.dataset_dict.items():
             print(f"  {dataset_name}: {dataset}")
@@ -188,6 +193,17 @@ class RailDatasetFactory:
         return datasets
 
     def load_instance_yaml(self, yaml_file: str) -> None:
+        """Read a yaml file and load the factory accordingly
+
+        Parameters
+        ----------
+        yaml_file: str
+            File to read
+
+        Notes
+        -----
+        See `RailDatasetFactory.load_yaml` for yaml file syntax
+        """
         with open(yaml_file, encoding="utf-8") as fin:
             dataset_data = yaml.safe_load(fin)
 

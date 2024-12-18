@@ -52,8 +52,6 @@ disable = [
     "invalid-name",
     "too-many-statements",
     "missing-module-docstring",
-    "missing-class-docstring",
-    "missing-function-docstring",
     "too-few-public-methods",
     "duplicate-code",
     "use-dict-literal",

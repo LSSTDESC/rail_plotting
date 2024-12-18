@@ -196,6 +196,7 @@ class RailPlotter:
 
     @property
     def config(self) -> StageConfig:
+        """Return the plotter configuration """
         return self._config
 
     def __repr__(self) -> str:

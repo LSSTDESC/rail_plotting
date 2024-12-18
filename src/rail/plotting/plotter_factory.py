@@ -37,11 +37,15 @@ class PlotterFactory:
     _instance: PlotterFactory | None = None
 
     def __init__(self) -> None:
+        """C'tor, build an empty PlotterFactory"""
+        if self._instance is not None:
+            raise ValueError("PlotterFactory instance already exists")
         self._plotter_dict: dict[str, RailPlotter] = {}
         self._plotter_list_dict: dict[str, list[RailPlotter]] = {}
 
     @classmethod
     def instance(cls) -> PlotterFactory:
+        """Return the singleton instance of the factory"""
         if cls._instance is None:
             cls._instance = PlotterFactory()
         return cls._instance
@@ -130,13 +134,16 @@ class PlotterFactory:
 
     @property
     def plotter_dict(self) -> dict[str, RailPlotter]:
+        """Return the dictionary of individual RailPlotter objects"""
         return self._plotter_dict
 
     @property
     def plotter_list_dict(self) -> dict[str, list[RailPlotter]]:
+        """Return the dictionary of lists of RailPlotter objects"""
         return self._plotter_list_dict
 
     def print_instance_contents(self) -> None:
+        """Print the contents of the factory"""
         print("Plotters:")
         for plotter_name, plotter in self.plotter_dict.items():
             print(f"  {plotter_name}: {plotter}")
@@ -171,6 +178,17 @@ class PlotterFactory:
         return plotters
 
     def load_instance_yaml(self, yaml_file: str) -> None:
+        """Read a yaml file and load the factory accordingly
+
+        Parameters
+        ----------
+        yaml_file: str
+            File to read
+
+        Notes
+        -----
+        See `PlotterFactory.load_yaml` for yaml file syntax
+        """
         with open(yaml_file, encoding="utf-8") as fin:
             plotter_data = yaml.safe_load(fin)
 
