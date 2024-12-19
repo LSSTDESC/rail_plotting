@@ -9,6 +9,22 @@ __all__: list[str] = [
 ]
 
 
+exclude_groups = PartialOption(
+    "--exclude_groups",
+    help="Plot groups to exclue",
+    multiple=True,
+    default=None,
+)
+
+
+include_groups = PartialOption(
+    "--include_groups",
+    help="Plot groups to include",
+    multiple=True,
+    default=None,
+)
+
+
 purge_plots = PartialOption(
     "--purge_plots",
     help="Purge plots from memory after saving",

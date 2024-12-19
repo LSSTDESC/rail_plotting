@@ -27,6 +27,11 @@ dev = [
     "pylint", # Used for static linting of files
 ]
 
+
+[project.scripts]
+rail_plot = "rail.cli.rail_plots.plot_commands:plot_cli"
+
+
 [build-system]
 requires = [
     "setuptools>=62", # Used to build and package the Python project

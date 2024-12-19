@@ -4,6 +4,7 @@ import click
 
 from rail.core import __version__
 
+from rail.cli.rail_pipe import pipe_options
 from rail.plotting import control
 from . import plot_options
 
@@ -15,9 +16,12 @@ def plot_cli() -> None:
 
 
 @plot_cli.command(name="run")
+@pipe_options.config_file()
+@plot_options.include_groups()
+@plot_options.exclude_groups()
 @plot_options.save_plots()
 @plot_options.purge_plots()
-def run_command(**kwargs: Any) -> int:
+def run_command(config_path: str, **kwargs: Any) -> int:
     """Make a bunch of plots"""
-    control.run(**kwargs)
+    control.run(config_path, **kwargs)
     return 0
