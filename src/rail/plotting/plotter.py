@@ -178,23 +178,23 @@ class RailPlotter:
         return out_dict
 
     @staticmethod
-    def save_plots(
+    def write_plots(
         fig_dict: dict[str, Figure],
         outdir: str=".",
         figtype: str="png",
     ) -> None:
-        """ Utility function to several plotters of several data sets
+        """ Utility function to write several plots do disk
 
         Parameters
         ----------
         fig_dict: dict[str, Figure]
-            Dictionary of figures to save
+            Dictionary of figures to write
 
         outdir: str
-            Directory to save figures in
+            Directory to write figures in
 
         figtype: str
-            Type of figures to save, e.g., png, pdf...
+            Type of figures to write, e.g., png, pdf...
         """
         for key, val in fig_dict.items():
             try:

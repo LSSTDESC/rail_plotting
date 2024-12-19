@@ -51,7 +51,7 @@ get_plotter_list = RailPlotterFactory.get_plotter_list
 
 # Lift methods from RailPlotter
 
-save_plots = RailPlotter.save_plots
+write_plots = RailPlotter.write_plots
 
 
 # Define a few additional functions
@@ -132,7 +132,7 @@ class RailPlotGroup:
             ),
         )
         if save:
-            save_plots(self._plots, self.outdir, self.figtype)
+            write_plots(self._plots, self.outdir, self.figtype)
             if purge:
                 self._plots.clear()
         return self._plots
@@ -238,8 +238,8 @@ def run(
     yaml_file: str,
     include_groups: list[str] | None=None,
     exclude_groups: list[str] | None=None,
-    save: bool=True,
-    purge: bool=True,
+    save_plots: bool=True,
+    purge_plots: bool=True,
 ) -> dict[str, Figure]:
     """Read a yaml file an make the corresponding plots
 
@@ -256,10 +256,10 @@ def run(
         PlotGroups to explicity exclude
         Use `None` to not exclude anything
 
-    save: bool=True
+    save_plots: bool=True
         Save plots to disk
 
-    purge: bool=True
+    purge_plots: bool=True
         Remove plots from memory after saving
 
     Returns
@@ -278,5 +278,5 @@ def run(
 
     for group_ in include_groups:
         plot_group = group_dict[group_]
-        out_dict.update(plot_group(save, purge))
+        out_dict.update(plot_group(save_plots, purge_plots))
     return out_dict

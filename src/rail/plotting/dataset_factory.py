@@ -4,6 +4,8 @@ from typing import Any
 
 import yaml
 
+from rail.utils.project import RailProject
+
 from .data_extraction import RailProjectDataExtractor
 
 
@@ -12,10 +14,13 @@ class RailDatasetFactory:
 
     Expected usage is that user will define a yaml file with the various
     datasets that they wish to use with the following example syntax:
-
+    - Project
+         name: some_project
+         yaml_file: /path/to/rail_project_file
     - Dataset:
           name: gold_baseline_test
           extractor: rail.plotters.pz_data_extraction.PZPointEstimateDataExtractor
+          project: some_project
           selection: gold
           flavor: baseline
           tag: test
@@ -23,6 +28,7 @@ class RailDatasetFactory:
     - Dataset:
           name: blend_baseline_test
           exctractor: rail.plotters.pz_data_extraction.PZPointEstimateDataExtractorxs
+          project: some_project
           selection: blend
           flavor: baseline
           tag: test
@@ -41,6 +47,7 @@ class RailDatasetFactory:
 
     def __init__(self) -> None:
         """C'tor, build an empty RailDatasetFactory"""
+        self._projects: dict[str, RailProject] = {}
         self._datasets: dict[str, dict] = {}
         self._dataset_dicts: dict[str, dict[str, dict]] = {}
 
@@ -71,9 +78,13 @@ class RailDatasetFactory:
         -----
         The format of the yaml file should be
 
+        - Project
+              name: some_project
+              yaml_file: /path/to/rail_project_file
         - Dataset:
               name: gold_baseline_test
               extractor: rail.plotters.pz_data_extraction.PZPointEstimateDataExtractor
+              project: some_project
               selection: gold
               flavor: baseline
               tag: test
@@ -81,6 +92,7 @@ class RailDatasetFactory:
         - Dataset:
               name: blend_baseline_test
               extractor: rail.plotters.pz_data_extraction.PZPointEstimateDataExtractor
+              project: some_project
               selection: blend
               flavor: baseline
               tag: test
@@ -94,6 +106,16 @@ class RailDatasetFactory:
         if cls._instance is None:
             cls._instance = RailDatasetFactory()
         cls._instance.load_instance_yaml(yaml_file)
+
+    @classmethod
+    def get_projects(cls) -> dict[str, RailProject]:
+        """Return the dict of all the projects"""
+        return cls.instance().projects
+
+    @classmethod
+    def get_project_names(cls) -> list[str]:
+        """Return the dict of all the projects"""
+        return list(cls.instance().projects.keys())
 
     @classmethod
     def get_datasets(cls) -> dict[str, dict]:
@@ -160,6 +182,11 @@ class RailDatasetFactory:
             ) from msg
 
     @property
+    def projects(self) -> dict[str, RailProject]:
+        """Return the dictionary of RailProjects"""
+        return self._projects
+
+    @property
     def datasets(self) -> dict[str, dict]:
         """Return the dictionary of individual datasets"""
         return self._datasets
@@ -171,6 +198,10 @@ class RailDatasetFactory:
 
     def print_instance_contents(self) -> None:
         """Print the contents of the factory"""
+        print("Projects:")
+        for project_name, project in self.projects.items():
+            print(f"  {project_name}: {project}")
+        print("----------------")
         print("Datasets:")
         for dataset_name, dataset in self.datasets.items():
             print(f"  {dataset_name}: {dataset}")
@@ -190,7 +221,14 @@ class RailDatasetFactory:
         if name in self._datasets:
             raise KeyError(f"Dataset {name} is already defined")
         extractor = self._get_extractor(class_name)
-        dataset = extractor(**kwargs)
+        project_name = kwargs.pop('project')
+        try:
+            project = self._projects['project_name']
+        except KeyError as msg:
+            raise KeyError(
+                f"Could not find project {project_name} in {list(self._projects.keys())}"
+            ) from msg
+        dataset = extractor(project=project, **kwargs)
         self._datasets[name] = dataset
         return dataset
 
@@ -263,8 +301,25 @@ class RailDatasetFactory:
                         f"{list(dataset_list_config.keys())}"
                     ) from msg
                 self._make_dataset_dict(name, dataset_names)
+            elif "Project" in dataset_item:
+                project_config = dataset_item["Project"]
+                try:
+                    name = project_config.pop("name")
+                except KeyError as msg:
+                    raise KeyError(
+                        "Project yaml block does not contain name for project: "
+                        f"{list(project_config.keys())}"
+                    ) from msg
+                try:
+                    project_yaml = project_config.pop("yaml_file")
+                except KeyError as msg:
+                    raise KeyError(
+                        "Project yaml block does not contain yaml_file: "
+                        f"{list(project_config.keys())}"
+                    ) from msg
+                self._projects[name] = RailProject.load_config(project_yaml)
             else:
-                good_keys = ["Dataset", "DatasetDict"]
+                good_keys = ["Dataset", "DatasetDict", "Project"]
                 raise KeyError(
                     f"Expecting one of {good_keys} not: {dataset_data.keys()})"
                 )
