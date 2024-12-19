@@ -2,12 +2,38 @@ from __future__ import annotations
 
 import os
 from typing import Any
-from matplotlib.Figure import Figure
+from matplotlib.figure import Figure
 
 from ceci.config import StageConfig, StageParameter
 
 class RailPlotter:
-    """ Base class for making matplotlib plot """
+    """ Base class for making matplotlib plot 
+
+    The main function in this class is:
+    __call__(prefix: str, kwargs**: Any) -> dict[str, Figure]
+
+    This function will make a set of plots and return them in a dict.
+    prefix is string that gets prepended to plot names.
+    
+    The data to be plotted is passed in via the kwargs.
+    
+
+    Sub-classes should implement 
+    
+    config_options: a dict[str, `ceci.StageParameter`] that
+    will be used to configure things like the axes binning, selection functions,
+    and other plot-specfic options
+
+    _inputs: a dict [str, type] that specifics the inputs
+    that the sub-classes expect, this is used the check the kwargs
+    that are passed to the __call__ function.
+
+    A function:
+    _make_plots(self, prefix: str, **kwargs: Any) -> dict[str, Figure]:
+    
+    That actually makes the plots.  It does not need to do the checking
+    that the correct kwargs have been given.      
+    """
 
     config_options: dict[str, StageParameter] = {}
 

@@ -1,3 +1,5 @@
+"""A set of utility functions to extract data for plotting from rail files"""
+
 from __future__ import annotations
 
 import os

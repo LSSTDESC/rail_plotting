@@ -4,7 +4,28 @@ from typing import Any
 
 
 class RailProjectDataExtractor:
-    """ Base class for extracting data from a RailProject """
+    """ Base class for extracting data from a RailProject
+
+    The main function in this class is:
+    __call__(kwargs**: Any) -> dict[str, Any]
+
+    This function will extract data and return them in a dict.
+    
+    Parameters to specify the data are passed vie the kwargs.
+    
+
+    Sub-classes should implement 
+    
+    _inputs: a dict [str, type] that specifics the inputs
+    that the sub-classes expect, this is used the check the kwargs
+    that are passed to the __call__ function.
+
+    A function:
+    _get_data(self,**kwargs: Any) -> dict[str, Any]:
+    
+    That actually gets the data.  It does not need to do the checking
+    that the correct kwargs have been given.      
+    """
 
     _inputs: dict = {}
 

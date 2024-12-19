@@ -6,7 +6,7 @@ import yaml
 from .plotter import RailPlotter
 
 
-class PlotterFactory:
+class RailPlotterFactory:
     """Factory class to make plotters
 
     Expected usage is that user will define a yaml file with the various
@@ -34,27 +34,27 @@ class PlotterFactory:
               - zestimate_v_ztrue_hist2d
               - zestimate_v_ztrue_profile
     """
-    _instance: PlotterFactory | None = None
+    _instance: RailPlotterFactory | None = None
 
     def __init__(self) -> None:
-        """C'tor, build an empty PlotterFactory"""
+        """C'tor, build an empty RailPlotterFactory"""
         if self._instance is not None:
-            raise ValueError("PlotterFactory instance already exists")
+            raise ValueError("RailPlotterFactory instance already exists")
         self._plotter_dict: dict[str, RailPlotter] = {}
         self._plotter_list_dict: dict[str, list[RailPlotter]] = {}
 
     @classmethod
-    def instance(cls) -> PlotterFactory:
+    def instance(cls) -> RailPlotterFactory:
         """Return the singleton instance of the factory"""
         if cls._instance is None:
-            cls._instance = PlotterFactory()
+            cls._instance = RailPlotterFactory()
         return cls._instance
 
     @classmethod
     def print_contents(cls) -> None:
         """Print the contents of the factory """
         if cls._instance is None:
-            cls._instance = PlotterFactory()
+            cls._instance = RailPlotterFactory()
         cls._instance.print_instance_contents()
 
     @classmethod
@@ -85,8 +85,28 @@ class PlotterFactory:
                   - some_other_name
         """
         if cls._instance is None:
-            cls._instance = PlotterFactory()
+            cls._instance = RailPlotterFactory()
         cls._instance.load_instance_yaml(yaml_file)
+
+    @classmethod
+    def get_plotter_dict(cls) -> dict[str, RailPlotter]:
+        """Return the dict of all the plotters"""
+        return cls.instance().plotter_dict
+
+    @classmethod
+    def get_plotter_names(cls) -> list[str]:
+        """Return the names of the plotters"""
+        return list(cls.instance().plotter_dict.keys())
+
+    @classmethod
+    def get_plotter_list_dict(cls) -> dict[str, list[RailPlotter]]:
+        """Return the dict of all the plotters"""
+        return cls.instance().plotter_list_dict
+
+    @classmethod
+    def get_plotter_list_names(cls) -> list[str]:
+        """Return the names of the plotter lists"""
+        return list(cls.instance().plotter_list_dict.keys())
 
     @classmethod
     def get_plotter(cls, name: str) -> RailPlotter:
@@ -187,7 +207,7 @@ class PlotterFactory:
 
         Notes
         -----
-        See `PlotterFactory.load_yaml` for yaml file syntax
+        See `RailPlotterFactory.load_yaml` for yaml file syntax
         """
         with open(yaml_file, encoding="utf-8") as fin:
             plotter_data = yaml.safe_load(fin)

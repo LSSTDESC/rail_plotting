@@ -9,8 +9,17 @@ from .data_extraction_funcs import get_pz_point_estimate_data
 
 
 class PZPointEstimateDataExtractor(RailProjectDataExtractor):
-    """ Class to make a 2D histogram of p(z) point estimates
-    versus true redshift
+    """ Class to extract true redshifts and p(z) point estimates 
+    from a RailProject.
+
+    This will return a dict:
+
+    truth: np.ndarray
+        True redshifts
+
+    pointEstimates: dict[str, np.ndarray]
+         Dict mapping from the names for the various point estimates to the 
+         estimates themselves
     """
 
     inputs: dict = {
