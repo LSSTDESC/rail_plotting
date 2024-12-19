@@ -13,7 +13,6 @@ exclude_groups = PartialOption(
     "--exclude_groups",
     help="Plot groups to exclue",
     multiple=True,
-    default=None,
 )
 
 
@@ -21,7 +20,6 @@ include_groups = PartialOption(
     "--include_groups",
     help="Plot groups to include",
     multiple=True,
-    default=None,
 )
 
 

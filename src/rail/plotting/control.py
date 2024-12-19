@@ -248,11 +248,11 @@ def run(
     yaml_file: str
         Top level yaml file with definitinos
 
-    include_groups: list[str] | None=None
+    include_groups: list[str]
         PlotGroups to explicitly include
         Use `None` for all plots
 
-    exclude_groups: list[str] | None=None,
+    exclude_groups: list[str]
         PlotGroups to explicity exclude
         Use `None` to not exclude anything
 
@@ -269,9 +269,9 @@ def run(
     """
     out_dict: dict[str, Figure] = {}
     group_dict = RailPlotGroup.load_yaml(yaml_file)
-    if include_groups is None:
+    if include_groups is None or not include_groups:
         include_groups = list(group_dict.keys())
-    if exclude_groups is None:
+    if exclude_groups is None or not exclude_groups:
         exclude_groups = []
     for exclude_group_ in exclude_groups:
         include_groups.remove(exclude_group_)

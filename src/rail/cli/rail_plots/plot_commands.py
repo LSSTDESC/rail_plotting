@@ -21,7 +21,8 @@ def plot_cli() -> None:
 @plot_options.exclude_groups()
 @plot_options.save_plots()
 @plot_options.purge_plots()
-def run_command(config_path: str, **kwargs: Any) -> int:
+def run_command(config_file: str, **kwargs: Any) -> int:
     """Make a bunch of plots"""
-    control.run(config_path, **kwargs)
+    print(kwargs)
+    #control.run(config_path, **kwargs)
     return 0
